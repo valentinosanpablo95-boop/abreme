@@ -19,14 +19,18 @@
     }
 
     *{ box-sizing:border-box; }
+
+    /* ✅ ahora permite scroll si algo crece */
     body{
       margin:0;
       font-family:"Inter Tight", system-ui, -apple-system, Segoe UI, Roboto, Arial;
       min-height:100vh;
       display:grid;
       place-items:center;
-      overflow:hidden;
       color:#fff;
+
+      overflow-x:hidden;
+      overflow-y:auto;
 
       background:
         radial-gradient(900px 600px at 15% 10%, rgba(255, 0, 140, .35), transparent 60%),
@@ -42,6 +46,7 @@
       animation: spin 10s linear infinite;
       opacity:.55;
       z-index:0;
+      pointer-events:none;
     }
     @keyframes spin{ to { transform: rotate(360deg);} }
 
@@ -51,6 +56,7 @@
       width:min(720px, 92vw);
       border-radius:24px;
       padding:28px;
+      margin:28px 0;
       background: var(--glass);
       border:1px solid var(--border);
       box-shadow: 0 20px 60px var(--shadow);
@@ -75,6 +81,11 @@
       font-size: clamp(28px, 4vw, 46px);
       letter-spacing:-.03em;
       line-height:1.05;
+    }
+    h2{
+      margin:10px 0 6px;
+      font-size: clamp(20px, 3vw, 28px);
+      letter-spacing:-.02em;
     }
     p{
       margin:10px 0 0;
@@ -104,7 +115,7 @@
       color:#fff;
       background: rgba(255,255,255,.10);
       border:1px solid rgba(255,255,255,.18);
-      transition: transform .08s ease, background .2s ease;
+      transition: transform .08s ease, background .2s ease, opacity .2s ease;
       user-select:none;
     }
     button:hover{ transform: translateY(-1px); background: rgba(255,255,255,.14); }
@@ -112,6 +123,10 @@
       background: linear-gradient(135deg, rgba(255,0,140,.95), rgba(255,170,0,.95));
       border:0;
       color:#0b0b12;
+    }
+    button.ghost{
+      background: rgba(0,0,0,.18);
+      border:1px solid rgba(255,255,255,.18);
     }
 
     .hidden{ display:none; }
@@ -124,8 +139,11 @@
       background: rgba(0,0,0,.22);
     }
 
+    /* ✅ Foto más pequeña y controlada */
     .photoWrap{
-      margin-top:14px;
+      margin:14px auto 0;
+      width:min(520px, 92%);
+      max-height: 52vh;       /* ✅ clave: no se coma la pantalla */
       overflow:hidden;
       border-radius:18px;
       border:1px solid rgba(255,255,255,.20);
@@ -133,9 +151,13 @@
       transform: translateY(10px);
       opacity:0;
       animation: popIn .7s ease forwards;
+      background: rgba(255,255,255,.04);
     }
     .photoWrap img{
       width:100%;
+      height:100%;
+      max-height: 52vh;
+      object-fit: cover;      /* ✅ se adapta bonito */
       display:block;
     }
     @keyframes popIn{
@@ -178,6 +200,15 @@
     @keyframes burst{
       to{ transform: translate(var(--x), var(--y)) scale(0.2); opacity:0; }
     }
+
+    /* mini fade para cambios */
+    .fadeIn{
+      animation: fade .25s ease;
+    }
+    @keyframes fade{
+      from{ opacity:.2; transform: translateY(4px); }
+      to{ opacity:1; transform: translateY(0); }
+    }
   </style>
 </head>
 
@@ -214,6 +245,22 @@
   </main>
 
   <script>
+    // ======== Mini log animado ========
+    const logEl = document.getElementById("log");
+    const steps = [
+      "Conectando con tu corazón…",
+      "Cargando momentos juntos…",
+      "Compilando sentimientos…",
+      "Deploy listo 🚀"
+    ];
+    let s = 0;
+    const logTimer = setInterval(() => {
+      logEl.textContent = steps[s] || "Listo.";
+      s++;
+      if (s > steps.length) clearInterval(logTimer);
+    }, 900);
+
+    // ======== Corazones ========
     const hearts = ["💖","💘","💗","💞","💓"];
     function spawnHeart(){
       const h = document.createElement("div");
@@ -227,29 +274,123 @@
       document.body.appendChild(h);
       setTimeout(() => h.remove(), 9000);
     }
-    setInterval(spawnHeart, 250);
+    setInterval(spawnHeart, 260);
 
+    // ======== Navegación ========
     const start = document.getElementById("start");
     const question = document.getElementById("question");
     const result = document.getElementById("result");
 
-    document.getElementById("btnOpen").addEventListener("click", () => {
-      start.classList.add("hidden");
-      question.classList.remove("hidden");
-    });
+    const btnOpen = document.getElementById("btnOpen");
+    const btnYes  = document.getElementById("btnYes");
+    const btnNo   = document.getElementById("btnNo");
 
-    document.getElementById("btnYes").addEventListener("click", () => {
+    function showStart(){
+      result.classList.add("hidden");
+      question.classList.add("hidden");
+      start.classList.remove("hidden");
+      start.classList.add("fadeIn");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function showQuestion(){
+      start.classList.add("hidden");
+      result.classList.add("hidden");
+      question.classList.remove("hidden");
+      question.classList.add("fadeIn");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function showResult(html){
+      start.classList.add("hidden");
       question.classList.add("hidden");
       result.classList.remove("hidden");
+      result.classList.add("fadeIn");
+      result.innerHTML = html;
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
 
-      result.innerHTML = `
+    btnOpen.addEventListener("click", () => {
+      popConfetti(18);
+      showQuestion();
+    });
+
+    // ======== NO (troleo pro, vuelve a dar opciones) ========
+    btnNo.addEventListener("click", () => {
+      popConfetti(10);
+
+      showResult(`
+        <h2>😈 Sabía que por curiosidad harías click en “No”.</h2>
+        <p>Pero tranqui… te dejo elegir otra vez (esta vez con amor).</p>
+
+        <div class="actions">
+          <button class="primary" id="againYes">Sí 💖</button>
+          <button class="ghost" id="againNo">No, pero me arrepiento 😅</button>
+          <button class="ghost" id="goHome">Volver al inicio</button>
+        </div>
+
+        <p class="mono">tip: la opción correcta sigue siendo “Sí”.</p>
+      `);
+
+      document.getElementById("againYes").addEventListener("click", () => btnYes.click());
+      document.getElementById("againNo").addEventListener("click", () => {
+        showResult(`
+          <h2>😂 Ok ok… ya entendí.</h2>
+          <p>Te estás haciendo la difícil. Me encanta.</p>
+          <div class="actions">
+            <button class="primary" id="finalTry">Ya sí, acepto 💖</button>
+            <button class="ghost" id="goHome2">Volver al inicio</button>
+          </div>
+          <p class="mono">status: negotiation → successful</p>
+        `);
+        document.getElementById("finalTry").addEventListener("click", () => btnYes.click());
+        document.getElementById("goHome2").addEventListener("click", showStart);
+      });
+
+      document.getElementById("goHome").addEventListener("click", showStart);
+    });
+
+    // ======== YES (foto más pequeña + botones extra) ========
+    btnYes.addEventListener("click", () => {
+      popConfetti(36);
+
+      const ticket = `SV-${Math.floor(Math.random()*9000+1000)}`;
+
+      showResult(`
         <h2>CONFIRMADO ✅💘</h2>
         <p>Ok… oficialmente eres mi San Valentín.</p>
+
         <div class="photoWrap">
-          <img src="assets/foto.jpeg" alt="Nosotros">
+          <img src="assets/foto.jpeg" alt="Nosotros"
+            onerror="this.outerHTML='<p style=&quot;margin-top:14px;opacity:.9&quot;>No cargó la foto 😅<br>Confirma que exista <b>assets/foto.jpeg</b>.</p>';">
         </div>
-      `;
+
+        <p class="mono">ticket_id: ${ticket} · status: approved</p>
+
+        <div class="actions">
+          <button class="ghost" id="askAgain">Volver a preguntar 😏</button>
+          <button class="ghost" id="goHome3">Ir al inicio</button>
+        </div>
+      `);
+
+      document.getElementById("askAgain").addEventListener("click", showQuestion);
+      document.getElementById("goHome3").addEventListener("click", showStart);
     });
+
+    // ======== Confeti ========
+    function popConfetti(count=24){
+      for(let i=0;i<count;i++){
+        const sp = document.createElement("div");
+        sp.className = "spark";
+        sp.style.left = (50 + (Math.random()*30 - 15)) + "vw";
+        sp.style.top  = (45 + (Math.random()*25 - 12)) + "vh";
+        sp.style.background = `hsl(${Math.floor(Math.random()*360)}, 90%, 60%)`;
+        sp.style.setProperty("--x", (Math.random()*520 - 260) + "px");
+        sp.style.setProperty("--y", (Math.random()*-440 - 80) + "px");
+        document.body.appendChild(sp);
+        setTimeout(()=>sp.remove(), 1000);
+      }
+    }
   </script>
 </body>
 </html>
