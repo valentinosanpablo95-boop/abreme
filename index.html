@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Invitación</title>
+  <style>
+    body{
+      margin:0;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #ff4e8a, #ff9a3c);
+      color:white;
+      text-align:center;
+    }
+    .card{
+      background: rgba(0,0,0,0.3);
+      padding:40px;
+      border-radius:20px;
+      width:90%;
+      max-width:500px;
+    }
+    button{
+      padding:12px 20px;
+      margin:10px;
+      border:none;
+      border-radius:10px;
+      font-size:16px;
+      cursor:pointer;
+    }
+    .yes{ background:white; color:black; font-weight:bold; }
+    .no{ background:#333; color:white; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Cargando invitación...</h2>
+    <p id="text"></p>
+    <div id="question" style="display:none;">
+      <h1>¿QUIERES SER MI SAN VALENTÍN?</h1>
+      <button class="yes" onclick="yes()">Sí 💖</button>
+      <button class="no" onclick="no()">No</button>
+    </div>
+    <h2 id="result"></h2>
+  </div>
+
+  <script>
+    const messages = [
+      "Conectando con tu corazón...",
+      "Cargando momentos juntos...",
+      "Compilando sentimientos...",
+      "Listo."
+    ];
+
+    let i = 0;
+    const text = document.getElementById("text");
+    const question = document.getElementById("question");
+
+    const interval = setInterval(() => {
+      text.textContent = messages[i];
+      i++;
+      if (i === messages.length) {
+        clearInterval(interval);
+        question.style.display = "block";
+      }
+    }, 1000);
+
+    function yes(){
+      document.getElementById("result").textContent = "Sabía que dirías que sí 💘";
+      question.style.display = "none";
+    }
+
+    function no(){
+      document.getElementById("result").textContent = "Error 404: respuesta inválida 😏";
+      question.style.display = "none";
+    }
+  </script>
+</body>
+</html>
