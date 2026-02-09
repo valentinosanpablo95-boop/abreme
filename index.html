@@ -115,6 +115,7 @@
       border:1px solid rgba(255,255,255,.18);
       transition: transform .08s ease, background .2s ease, opacity .2s ease;
       user-select:none;
+      -webkit-tap-highlight-color: transparent;
     }
     button:hover{ transform: translateY(-1px); background: rgba(255,255,255,.14); }
     button.primary{
@@ -137,6 +138,7 @@
       background: rgba(0,0,0,.22);
     }
 
+    /* Foto controlada */
     .photoWrap{
       margin:14px auto 0;
       width:min(520px, 92%);
@@ -160,93 +162,213 @@
     @keyframes popIn{
       to{ transform: translateY(0); opacity:1; }
     }
+
+    /* ✅ CORAZONES flotando */
+    .heart{
+      position:fixed;
+      bottom:-30px;
+      z-index:1;              /* detrás de la card (z=2) pero encima del fondo */
+      pointer-events:none;
+      opacity:.95;
+      will-change: transform, opacity;
+      filter: drop-shadow(0 8px 16px rgba(0,0,0,.35));
+      animation-name: floatUp;
+      animation-timing-function: linear;
+      animation-fill-mode: forwards;
+    }
+    @keyframes floatUp{
+      from{
+        transform: translate3d(0, 0, 0) scale(1);
+        opacity:0;
+      }
+      12%{ opacity:1; }
+      to{
+        transform: translate3d(var(--drift), -120vh, 0) scale(var(--scale));
+        opacity:0;
+      }
+    }
+
+    /* Si el sistema reduce animaciones, bajamos la intensidad */
+    @media (prefers-reduced-motion: reduce){
+      .glow{ animation: none; }
+      .heart{ animation-duration: 8s !important; }
+    }
   </style>
 </head>
 
 <body>
-<div class="glow"></div>
+  <div class="glow"></div>
 
-<main class="card center">
-  <div class="badge">status: <b>live</b> · endpoint: <b>/abreme</b> 💌</div>
+  <main class="card center">
+    <div class="badge">status: <b>live</b> · endpoint: <b>/abreme</b> 💌</div>
 
-  <section id="start">
-    <h1>Oye baby… tengo algo para ti.</h1>
-    <p>Prometo que vale la pena abrirlo 😌</p>
-    <div class="actions">
-      <button class="primary" id="btnOpen">ÁBREME</button>
-    </div>
-  </section>
+    <section id="start">
+      <h1>Oye baby… tengo algo para ti.</h1>
+      <p>Prometo que vale la pena abrirlo 😌</p>
+      <div class="actions">
+        <button class="primary" id="btnOpen">ÁBREME</button>
+      </div>
+    </section>
 
-  <section id="question" class="hidden">
-    <h1>¿QUIERES SER MI SAN VALENTÍN? 💘</h1>
-    <p>Plan: tú + yo + algo bonito. Sin excusas.</p>
-    <div class="actions">
-      <button class="primary" id="btnYes">Sí 💖</button>
-      <button id="btnNo">No 😅</button>
-    </div>
-  </section>
+    <section id="question" class="hidden">
+      <h1>¿QUIERES SER MI SAN VALENTÍN? 💘</h1>
+      <p>Plan: tú + yo + algo bonito. Sin excusas.</p>
+      <div class="actions">
+        <button class="primary" id="btnYes">Sí 💖</button>
+        <button id="btnNo">No 😅</button>
+      </div>
+    </section>
 
-  <section id="result" class="hidden panel"></section>
-</main>
+    <section id="result" class="hidden panel"></section>
+  </main>
 
-<script>
-const start = document.getElementById("start");
-const question = document.getElementById("question");
-const result = document.getElementById("result");
+  <script>
+    // ======== Corazones flotando (desktop + mobile) ========
+    const hearts = ["💖","💘","💗","💞","💓","💕"];
+    function spawnHeart(){
+      const h = document.createElement("div");
+      h.className = "heart";
+      h.textContent = hearts[Math.floor(Math.random()*hearts.length)];
 
-const btnOpen = document.getElementById("btnOpen");
-const btnYes  = document.getElementById("btnYes");
-const btnNo   = document.getElementById("btnNo");
+      h.style.left = (Math.random()*100) + "vw";
+      h.style.fontSize = (14 + Math.random()*26) + "px";
+      h.style.setProperty("--drift", (Math.random()*140 - 70) + "px");
+      h.style.setProperty("--scale", (0.8 + Math.random()*0.9).toFixed(2));
+      h.style.animationDuration = (4.5 + Math.random()*4.5) + "s";
 
-function showStart(){
-  result.classList.add("hidden");
-  question.classList.add("hidden");
-  start.classList.remove("hidden");
-}
+      document.body.appendChild(h);
+      setTimeout(() => h.remove(), 10000);
+    }
 
-function showQuestion(){
-  start.classList.add("hidden");
-  result.classList.add("hidden");
-  question.classList.remove("hidden");
-}
+    // ✅ para que se note sí o sí:
+    for(let i=0;i<10;i++) setTimeout(spawnHeart, i*140);
+    setInterval(spawnHeart, 260);
 
-function showResult(html){
-  start.classList.add("hidden");
-  question.classList.add("hidden");
-  result.classList.remove("hidden");
-  result.innerHTML = html;
-}
+    // ======== Navegación ========
+    const start = document.getElementById("start");
+    const question = document.getElementById("question");
+    const result = document.getElementById("result");
 
-btnOpen.onclick = showQuestion;
+    const btnOpen = document.getElementById("btnOpen");
+    const btnYes  = document.getElementById("btnYes");
+    const btnNo   = document.getElementById("btnNo");
 
-let noMoves = 0;
-btnNo.addEventListener("mouseenter", () => {
-  if(noMoves >= 2) return;
-  noMoves++;
-  btnNo.style.transform = `translate(${Math.random()*200-100}px, ${Math.random()*100-50}px)`;
-  setTimeout(()=>btnNo.style.transform="translate(0,0)",400);
-});
+    function showStart(){
+      result.classList.add("hidden");
+      question.classList.add("hidden");
+      start.classList.remove("hidden");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
 
-btnNo.onclick = () => {
-  showResult(`
-    <h2>😈 Sabía que por curiosidad harías click en “No”.</h2>
-    <p>Pero te dejo elegir otra vez.</p>
-    <div class="actions">
-      <button class="primary" onclick="document.getElementById('btnYes').click()">Sí 💖</button>
-      <button class="ghost" onclick="location.reload()">Volver al inicio</button>
-    </div>
-  `);
-};
+    function showQuestion(){
+      start.classList.add("hidden");
+      result.classList.add("hidden");
+      question.classList.remove("hidden");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
 
-btnYes.onclick = () => {
-  showResult(`
-    <h2>CONFIRMADO ✅💘</h2>
-    <p>Ok… oficialmente eres mi San Valentín.</p>
-    <div class="photoWrap">
-      <img src="assets/foto.jpeg" alt="Nosotros">
-    </div>
-  `);
-};
-</script>
+    function showResult(html){
+      start.classList.add("hidden");
+      question.classList.add("hidden");
+      result.classList.remove("hidden");
+      result.innerHTML = html;
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    btnOpen.addEventListener("click", showQuestion);
+
+    // ======== NO (se escapa 2 veces y luego se deja) ========
+    let noDodges = 0;
+    const maxDodges = 2;
+
+    function dodgeNo(){
+      if (noDodges >= maxDodges) return;
+      noDodges++;
+
+      const dx = (Math.random()*220 - 110);
+      const dy = (Math.random()*120 - 60);
+      btnNo.style.transform = `translate(${dx}px, ${dy}px)`;
+
+      setTimeout(() => {
+        btnNo.style.transform = `translate(0px, 0px)`;
+      }, 520);
+    }
+
+    // desktop
+    btnNo.addEventListener("mouseenter", dodgeNo);
+    // mobile
+    btnNo.addEventListener("touchstart", () => { dodgeNo(); }, { passive: true });
+
+    // click NO
+    btnNo.addEventListener("click", () => {
+      showResult(`
+        <h2>😈 Sabía que por curiosidad harías click en “No”.</h2>
+        <p>Pero tranqui… te dejo elegir otra vez (esta vez con amor).</p>
+
+        <div class="actions">
+          <button class="primary" id="againYes">Sí 💖</button>
+          <button class="ghost" id="againNo">No, pero me arrepiento 😅</button>
+          <button class="ghost" id="goHome">Volver al inicio</button>
+        </div>
+
+        <p style="opacity:.85;margin-top:10px">tip: la opción correcta sigue siendo “Sí”.</p>
+      `);
+
+      document.getElementById("againYes").addEventListener("click", () => btnYes.click());
+
+      document.getElementById("againNo").addEventListener("click", () => {
+        showResult(`
+          <h2>😂 Ok ok… ya entendí.</h2>
+          <p>Te estás haciendo la difícil. Me encanta.</p>
+
+          <div class="actions">
+            <button class="primary" id="finalTry">Ya sí, acepto 💖</button>
+            <button class="ghost" id="goHome2">Volver al inicio</button>
+          </div>
+
+          <p style="opacity:.85;margin-top:10px">status: negotiation → successful</p>
+        `);
+
+        document.getElementById("finalTry").addEventListener("click", () => btnYes.click());
+        document.getElementById("goHome2").addEventListener("click", showStart);
+      });
+
+      document.getElementById("goHome").addEventListener("click", showStart);
+    });
+
+    // ======== YES ========
+    btnYes.addEventListener("click", () => {
+      const ticket = `SV-${Math.floor(Math.random()*9000+1000)}`;
+
+      showResult(`
+        <h2>CONFIRMADO ✅💘</h2>
+        <p>Ok… oficialmente eres mi San Valentín.</p>
+
+        <div class="photoWrap">
+          <img src="assets/foto.jpeg" alt="Nosotros"
+            onerror="this.outerHTML='<p style=&quot;margin-top:14px;opacity:.9&quot;>No cargó la foto 😅<br>Confirma que exista <b>assets/foto.jpeg</b>.</p>';">
+        </div>
+
+        <p style="opacity:.85;margin-top:10px">ticket_id: ${ticket} · status: approved</p>
+
+        <div class="actions">
+          <button class="ghost" id="askAgain">Volver a preguntar 😏</button>
+          <button class="ghost" id="goHome3">Ir al inicio</button>
+        </div>
+      `);
+
+      document.getElementById("askAgain").addEventListener("click", () => {
+        noDodges = 0;
+        btnNo.style.transform = `translate(0px,0px)`;
+        showQuestion();
+      });
+
+      document.getElementById("goHome3").addEventListener("click", () => {
+        noDodges = 0;
+        btnNo.style.transform = `translate(0px,0px)`;
+        showStart();
+      });
+    });
+  </script>
 </body>
 </html>
