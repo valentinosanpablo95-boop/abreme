@@ -28,14 +28,12 @@
       overflow:hidden;
       color:#fff;
 
-      /* fondo pro */
       background:
         radial-gradient(900px 600px at 15% 10%, rgba(255, 0, 140, .35), transparent 60%),
         radial-gradient(900px 600px at 85% 90%, rgba(255, 170, 0, .28), transparent 60%),
         linear-gradient(135deg, #170a25, #0b1020);
     }
 
-    /* brillo suave animado */
     .glow{
       position:fixed;
       inset:-40%;
@@ -126,7 +124,6 @@
       background: rgba(0,0,0,.22);
     }
 
-    /* Foto + anim */
     .photoWrap{
       margin-top:14px;
       overflow:hidden;
@@ -145,7 +142,6 @@
       to{ transform: translateY(0); opacity:1; }
     }
 
-    /* Corazones flotando */
     .heart{
       position:fixed;
       bottom:-30px;
@@ -161,7 +157,6 @@
       to{ transform: translateY(-120vh) translateX(var(--drift)) scale(var(--scale)); opacity:0; }
     }
 
-    /* “terminal vibe” */
     .mono{
       font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
       font-size:13px;
@@ -169,10 +164,8 @@
       margin-top:12px;
     }
 
-    /* botón no escapista */
     #btnNo{ position:relative; }
 
-    /* confeti */
     .spark{
       position:fixed;
       z-index:3;
@@ -194,7 +187,6 @@
   <main class="card center">
     <div class="badge">status: <b>live</b> · endpoint: <b>/abreme</b> 💌</div>
 
-    <!-- Pantalla inicial -->
     <section id="start">
       <h1>Hey tú… tengo algo para ti.</h1>
       <p>Prometo que vale la pena abrirlo 😌</p>
@@ -206,7 +198,6 @@
       <div class="mono" id="log">Inicializando…</div>
     </section>
 
-    <!-- Pregunta -->
     <section id="question" class="hidden">
       <h1>¿QUIERES SER MI SAN VALENTÍN? 💘</h1>
       <p>Plan: tú + yo + algo bonito. Sin excusas.</p>
@@ -219,27 +210,10 @@
       <div class="mono">hint: elegir “Sí” mejora la vida en un 200%.</div>
     </section>
 
-    <!-- Resultado -->
     <section id="result" class="hidden panel"></section>
   </main>
 
   <script>
-    // ======== Mini log animado ========
-    const logEl = document.getElementById("log");
-    const steps = [
-      "Conectando con tu corazón…",
-      "Cargando momentos juntos…",
-      "Compilando sentimientos…",
-      "Deploy listo 🚀"
-    ];
-    let s = 0;
-    const logTimer = setInterval(() => {
-      logEl.textContent = steps[s] || "Listo.";
-      s++;
-      if (s > steps.length) clearInterval(logTimer);
-    }, 900);
-
-    // ======== Corazones flotando (sí o sí se ve movimiento) ========
     const hearts = ["💖","💘","💗","💞","💓"];
     function spawnHeart(){
       const h = document.createElement("div");
@@ -255,7 +229,6 @@
     }
     setInterval(spawnHeart, 250);
 
-    // ======== Navegación ========
     const start = document.getElementById("start");
     const question = document.getElementById("question");
     const result = document.getElementById("result");
@@ -263,23 +236,8 @@
     document.getElementById("btnOpen").addEventListener("click", () => {
       start.classList.add("hidden");
       question.classList.remove("hidden");
-      popConfetti();
     });
 
-    // ======== Botón NO se escapa ========
-    const btnNo = document.getElementById("btnNo");
-    btnNo.addEventListener("mouseenter", () => {
-      const dx = (Math.random()*220 - 110);
-      const dy = (Math.random()*120 - 60);
-      btnNo.style.transform = `translate(${dx}px, ${dy}px)`;
-    });
-    btnNo.addEventListener("click", () => {
-      result.classList.remove("hidden");
-      result.innerHTML = `<h2>🫢 404: “No” no encontrado</h2><p>Intenta otra vez…</p>`;
-      popConfetti(10);
-    });
-
-    // ======== Al dar SÍ -> aparece la foto ========
     document.getElementById("btnYes").addEventListener("click", () => {
       question.classList.add("hidden");
       result.classList.remove("hidden");
@@ -288,29 +246,10 @@
         <h2>CONFIRMADO ✅💘</h2>
         <p>Ok… oficialmente eres mi San Valentín.</p>
         <div class="photoWrap">
-          <img src="foto.jpeg" alt="Nosotros">
+          <img src="assets/foto.jpeg" alt="Nosotros">
         </div>
-        <p class="mono">ticket_id: SV-${Math.floor(Math.random()*9000+1000)} · status: approved</p>
       `;
-      popConfetti(36);
     });
-
-    // ======== Confeti simple ========
-    function popConfetti(count=24){
-      for(let i=0;i<count;i++){
-        const sp = document.createElement("div");
-        sp.className = "spark";
-        sp.style.left = (50 + (Math.random()*30 - 15)) + "vw";
-        sp.style.top  = (50 + (Math.random()*20 - 10)) + "vh";
-        sp.style.background = `hsl(${Math.floor(Math.random()*360)}, 90%, 60%)`;
-        sp.style.setProperty("--x", (Math.random()*500 - 250) + "px");
-        sp.style.setProperty("--y", (Math.random()*-420 - 80) + "px");
-        document.body.appendChild(sp);
-        setTimeout(()=>sp.remove(), 1000);
-      }
-    }
   </script>
 </body>
 </html>
-
-
