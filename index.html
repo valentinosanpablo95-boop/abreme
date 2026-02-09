@@ -20,7 +20,6 @@
 
     *{ box-sizing:border-box; }
 
-    /* ✅ ahora permite scroll si algo crece */
     body{
       margin:0;
       font-family:"Inter Tight", system-ui, -apple-system, Segoe UI, Roboto, Arial;
@@ -28,7 +27,6 @@
       display:grid;
       place-items:center;
       color:#fff;
-
       overflow-x:hidden;
       overflow-y:auto;
 
@@ -139,25 +137,24 @@
       background: rgba(0,0,0,.22);
     }
 
-    /* ✅ Foto más pequeña y controlada */
     .photoWrap{
       margin:14px auto 0;
       width:min(520px, 92%);
-      max-height: 52vh;       /* ✅ clave: no se coma la pantalla */
+      max-height:52vh;
       overflow:hidden;
       border-radius:18px;
       border:1px solid rgba(255,255,255,.20);
       box-shadow: 0 16px 40px rgba(0,0,0,.35);
+      background: rgba(255,255,255,.04);
       transform: translateY(10px);
       opacity:0;
       animation: popIn .7s ease forwards;
-      background: rgba(255,255,255,.04);
     }
     .photoWrap img{
       width:100%;
       height:100%;
-      max-height: 52vh;
-      object-fit: cover;      /* ✅ se adapta bonito */
+      max-height:52vh;
+      object-fit:cover;
       display:block;
     }
     @keyframes popIn{
@@ -171,226 +168,100 @@
       pointer-events:none;
       opacity:.9;
       animation: floatUp linear forwards;
-      filter: drop-shadow(0 6px 10px rgba(0,0,0,.35));
     }
     @keyframes floatUp{
-      from{ transform: translateY(0) translateX(0) scale(1); opacity:0; }
+      from{ transform: translateY(0) scale(1); opacity:0; }
       10%{ opacity:1; }
-      to{ transform: translateY(-120vh) translateX(var(--drift)) scale(var(--scale)); opacity:0; }
-    }
-
-    .mono{
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      font-size:13px;
-      opacity:.85;
-      margin-top:12px;
-    }
-
-    #btnNo{ position:relative; }
-
-    .spark{
-      position:fixed;
-      z-index:3;
-      pointer-events:none;
-      width:8px;
-      height:8px;
-      border-radius:999px;
-      animation: burst 900ms ease-out forwards;
-    }
-    @keyframes burst{
-      to{ transform: translate(var(--x), var(--y)) scale(0.2); opacity:0; }
-    }
-
-    /* mini fade para cambios */
-    .fadeIn{
-      animation: fade .25s ease;
-    }
-    @keyframes fade{
-      from{ opacity:.2; transform: translateY(4px); }
-      to{ opacity:1; transform: translateY(0); }
+      to{ transform: translateY(-120vh) scale(1.2); opacity:0; }
     }
   </style>
 </head>
 
 <body>
-  <div class="glow"></div>
+<div class="glow"></div>
 
-  <main class="card center">
-    <div class="badge">status: <b>live</b> · endpoint: <b>/abreme</b> 💌</div>
+<main class="card center">
+  <div class="badge">status: <b>live</b> · endpoint: <b>/abreme</b> 💌</div>
 
-    <section id="start">
-      <h1>Hey tú… tengo algo para ti.</h1>
-      <p>Prometo que vale la pena abrirlo 😌</p>
+  <section id="start">
+    <h1>Hey tú… tengo algo para ti.</h1>
+    <p>Prometo que vale la pena abrirlo 😌</p>
+    <div class="actions">
+      <button class="primary" id="btnOpen">ÁBREME</button>
+    </div>
+  </section>
 
-      <div class="actions">
-        <button class="primary" id="btnOpen">ÁBREME</button>
-      </div>
+  <section id="question" class="hidden">
+    <h1>¿QUIERES SER MI SAN VALENTÍN? 💘</h1>
+    <p>Plan: tú + yo + algo bonito. Sin excusas.</p>
+    <div class="actions">
+      <button class="primary" id="btnYes">Sí 💖</button>
+      <button id="btnNo">No 😅</button>
+    </div>
+  </section>
 
-      <div class="mono" id="log">Inicializando…</div>
-    </section>
+  <section id="result" class="hidden panel"></section>
+</main>
 
-    <section id="question" class="hidden">
-      <h1>¿QUIERES SER MI SAN VALENTÍN? 💘</h1>
-      <p>Plan: tú + yo + algo bonito. Sin excusas.</p>
+<script>
+const start = document.getElementById("start");
+const question = document.getElementById("question");
+const result = document.getElementById("result");
 
-      <div class="actions">
-        <button class="primary" id="btnYes">Sí 💖</button>
-        <button id="btnNo">No 😅</button>
-      </div>
+const btnOpen = document.getElementById("btnOpen");
+const btnYes  = document.getElementById("btnYes");
+const btnNo   = document.getElementById("btnNo");
 
-      <div class="mono">hint: elegir “Sí” mejora la vida en un 200%.</div>
-    </section>
+function showStart(){
+  result.classList.add("hidden");
+  question.classList.add("hidden");
+  start.classList.remove("hidden");
+}
 
-    <section id="result" class="hidden panel"></section>
-  </main>
+function showQuestion(){
+  start.classList.add("hidden");
+  result.classList.add("hidden");
+  question.classList.remove("hidden");
+}
 
-  <script>
-    // ======== Mini log animado ========
-    const logEl = document.getElementById("log");
-    const steps = [
-      "Conectando con tu corazón…",
-      "Cargando momentos juntos…",
-      "Compilando sentimientos…",
-      "Deploy listo 🚀"
-    ];
-    let s = 0;
-    const logTimer = setInterval(() => {
-      logEl.textContent = steps[s] || "Listo.";
-      s++;
-      if (s > steps.length) clearInterval(logTimer);
-    }, 900);
+function showResult(html){
+  start.classList.add("hidden");
+  question.classList.add("hidden");
+  result.classList.remove("hidden");
+  result.innerHTML = html;
+}
 
-    // ======== Corazones ========
-    const hearts = ["💖","💘","💗","💞","💓"];
-    function spawnHeart(){
-      const h = document.createElement("div");
-      h.className = "heart";
-      h.textContent = hearts[Math.floor(Math.random()*hearts.length)];
-      h.style.left = Math.random()*100 + "vw";
-      h.style.fontSize = (14 + Math.random()*22) + "px";
-      h.style.setProperty("--drift", (Math.random()*120 - 60) + "px");
-      h.style.setProperty("--scale", (0.8 + Math.random()*0.8).toFixed(2));
-      h.style.animationDuration = (4 + Math.random()*4) + "s";
-      document.body.appendChild(h);
-      setTimeout(() => h.remove(), 9000);
-    }
-    setInterval(spawnHeart, 260);
+btnOpen.onclick = showQuestion;
 
-    // ======== Navegación ========
-    const start = document.getElementById("start");
-    const question = document.getElementById("question");
-    const result = document.getElementById("result");
+// NO se escapa solo 2 veces
+let noMoves = 0;
+btnNo.addEventListener("mouseenter", () => {
+  if(noMoves >= 2) return;
+  noMoves++;
+  btnNo.style.transform = `translate(${Math.random()*200-100}px, ${Math.random()*100-50}px)`;
+  setTimeout(()=>btnNo.style.transform="translate(0,0)",400);
+});
 
-    const btnOpen = document.getElementById("btnOpen");
-    const btnYes  = document.getElementById("btnYes");
-    const btnNo   = document.getElementById("btnNo");
+btnNo.onclick = () => {
+  showResult(`
+    <h2>😈 Sabía que por curiosidad harías click en “No”.</h2>
+    <p>Pero te dejo elegir otra vez.</p>
+    <div class="actions">
+      <button class="primary" onclick="document.getElementById('btnYes').click()">Sí 💖</button>
+      <button class="ghost" onclick="location.reload()">Volver al inicio</button>
+    </div>
+  `);
+};
 
-    function showStart(){
-      result.classList.add("hidden");
-      question.classList.add("hidden");
-      start.classList.remove("hidden");
-      start.classList.add("fadeIn");
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-
-    function showQuestion(){
-      start.classList.add("hidden");
-      result.classList.add("hidden");
-      question.classList.remove("hidden");
-      question.classList.add("fadeIn");
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-
-    function showResult(html){
-      start.classList.add("hidden");
-      question.classList.add("hidden");
-      result.classList.remove("hidden");
-      result.classList.add("fadeIn");
-      result.innerHTML = html;
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-
-    btnOpen.addEventListener("click", () => {
-      popConfetti(18);
-      showQuestion();
-    });
-
-    // ======== NO (troleo pro, vuelve a dar opciones) ========
-    btnNo.addEventListener("click", () => {
-      popConfetti(10);
-
-      showResult(`
-        <h2>😈 Sabía que por curiosidad harías click en “No”.</h2>
-        <p>Pero tranqui… te dejo elegir otra vez (esta vez con amor).</p>
-
-        <div class="actions">
-          <button class="primary" id="againYes">Sí 💖</button>
-          <button class="ghost" id="againNo">No, pero me arrepiento 😅</button>
-          <button class="ghost" id="goHome">Volver al inicio</button>
-        </div>
-
-        <p class="mono">tip: la opción correcta sigue siendo “Sí”.</p>
-      `);
-
-      document.getElementById("againYes").addEventListener("click", () => btnYes.click());
-      document.getElementById("againNo").addEventListener("click", () => {
-        showResult(`
-          <h2>😂 Ok ok… ya entendí.</h2>
-          <p>Te estás haciendo la difícil. Me encanta.</p>
-          <div class="actions">
-            <button class="primary" id="finalTry">Ya sí, acepto 💖</button>
-            <button class="ghost" id="goHome2">Volver al inicio</button>
-          </div>
-          <p class="mono">status: negotiation → successful</p>
-        `);
-        document.getElementById("finalTry").addEventListener("click", () => btnYes.click());
-        document.getElementById("goHome2").addEventListener("click", showStart);
-      });
-
-      document.getElementById("goHome").addEventListener("click", showStart);
-    });
-
-    // ======== YES (foto más pequeña + botones extra) ========
-    btnYes.addEventListener("click", () => {
-      popConfetti(36);
-
-      const ticket = `SV-${Math.floor(Math.random()*9000+1000)}`;
-
-      showResult(`
-        <h2>CONFIRMADO ✅💘</h2>
-        <p>Ok… oficialmente eres mi San Valentín.</p>
-
-        <div class="photoWrap">
-          <img src="assets/foto.jpeg" alt="Nosotros"
-            onerror="this.outerHTML='<p style=&quot;margin-top:14px;opacity:.9&quot;>No cargó la foto 😅<br>Confirma que exista <b>assets/foto.jpeg</b>.</p>';">
-        </div>
-
-        <p class="mono">ticket_id: ${ticket} · status: approved</p>
-
-        <div class="actions">
-          <button class="ghost" id="askAgain">Volver a preguntar 😏</button>
-          <button class="ghost" id="goHome3">Ir al inicio</button>
-        </div>
-      `);
-
-      document.getElementById("askAgain").addEventListener("click", showQuestion);
-      document.getElementById("goHome3").addEventListener("click", showStart);
-    });
-
-    // ======== Confeti ========
-    function popConfetti(count=24){
-      for(let i=0;i<count;i++){
-        const sp = document.createElement("div");
-        sp.className = "spark";
-        sp.style.left = (50 + (Math.random()*30 - 15)) + "vw";
-        sp.style.top  = (45 + (Math.random()*25 - 12)) + "vh";
-        sp.style.background = `hsl(${Math.floor(Math.random()*360)}, 90%, 60%)`;
-        sp.style.setProperty("--x", (Math.random()*520 - 260) + "px");
-        sp.style.setProperty("--y", (Math.random()*-440 - 80) + "px");
-        document.body.appendChild(sp);
-        setTimeout(()=>sp.remove(), 1000);
-      }
-    }
-  </script>
+btnYes.onclick = () => {
+  showResult(`
+    <h2>CONFIRMADO ✅💘</h2>
+    <p>Ok… oficialmente eres mi San Valentín.</p>
+    <div class="photoWrap">
+      <img src="assets/foto.jpeg" alt="Nosotros">
+    </div>
+  `);
+};
+</script>
 </body>
 </html>
