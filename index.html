@@ -1,82 +1,136 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Invitación</title>
-  <style>
-    body{
-      margin:0;
-      min-height:100vh;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #ff4e8a, #ff9a3c);
-      color:white;
-      text-align:center;
-    }
-    .card{
-      background: rgba(0,0,0,0.3);
-      padding:40px;
-      border-radius:20px;
-      width:90%;
-      max-width:500px;
-    }
-    button{
-      padding:12px 20px;
-      margin:10px;
-      border:none;
-      border-radius:10px;
-      font-size:16px;
-      cursor:pointer;
-    }
-    .yes{ background:white; color:black; font-weight:bold; }
-    .no{ background:#333; color:white; }
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ábreme 💌</title>
+
+<style>
+body{
+  margin:0;
+  font-family: Arial, sans-serif;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:linear-gradient(135deg,#ff4e8a,#ff9a3c);
+  overflow:hidden;
+  color:white;
+  text-align:center;
+}
+
+/* corazones */
+.heart{
+  position:fixed;
+  bottom:-20px;
+  font-size:20px;
+  animation:float 6s linear infinite;
+  opacity:0.7;
+}
+@keyframes float{
+  to{
+    transform:translateY(-110vh);
+    opacity:0;
+  }
+}
+
+.card{
+  background:rgba(0,0,0,0.35);
+  padding:40px;
+  border-radius:20px;
+  width:90%;
+  max-width:500px;
+  z-index:2;
+}
+
+button{
+  padding:12px 20px;
+  margin:10px;
+  border:none;
+  border-radius:10px;
+  font-size:16px;
+  cursor:pointer;
+}
+.yes{ background:white; color:black; font-weight:bold; }
+.no{ background:#333; color:white; }
+
+img{
+  width:100%;
+  border-radius:15px;
+  margin-top:20px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.4);
+}
+
+.open-btn{
+  font-size:20px;
+  padding:15px 25px;
+  background:white;
+  color:black;
+  font-weight:bold;
+  border-radius:12px;
+}
+</style>
 </head>
+
 <body>
-  <div class="card">
-    <h2>Cargando invitación...</h2>
-    <p id="text"></p>
-    <div id="question" style="display:none;">
-      <h1>¿QUIERES SER MI SAN VALENTÍN?</h1>
-      <button class="yes" onclick="yes()">Sí 💖</button>
-      <button class="no" onclick="no()">No</button>
-    </div>
-    <h2 id="result"></h2>
+
+<div class="card">
+
+  <!-- Pantalla inicial -->
+  <div id="start">
+    <h1>💌 Tengo algo para ti</h1>
+    <button class="open-btn" onclick="openCard()">ÁBREME</button>
   </div>
 
-  <script>
-    const messages = [
-      "Conectando con tu corazón...",
-      "Cargando momentos juntos...",
-      "Compilando sentimientos...",
-      "Listo."
-    ];
+  <!-- Pregunta -->
+  <div id="question" style="display:none;">
+    <h1>¿QUIERES SER MI SAN VALENTÍN? 💘</h1>
+    <button class="yes" onclick="yes()">Sí 💖</button>
+    <button class="no" onclick="no()">No</button>
+  </div>
 
-    let i = 0;
-    const text = document.getElementById("text");
-    const question = document.getElementById("question");
+  <!-- Resultado -->
+  <div id="result"></div>
 
-    const interval = setInterval(() => {
-      text.textContent = messages[i];
-      i++;
-      if (i === messages.length) {
-        clearInterval(interval);
-        question.style.display = "block";
-      }
-    }, 1000);
+</div>
 
-    function yes(){
-      document.getElementById("result").textContent = "Sabía que dirías que sí 💘";
-      question.style.display = "none";
-    }
+<script>
+/* corazones flotando */
+function createHeart(){
+  const heart=document.createElement("div");
+  heart.classList.add("heart");
+  heart.innerHTML="💖";
+  heart.style.left=Math.random()*100+"vw";
+  heart.style.fontSize=(15+Math.random()*20)+"px";
+  heart.style.animationDuration=(4+Math.random()*4)+"s";
+  document.body.appendChild(heart);
 
-    function no(){
-      document.getElementById("result").textContent = "Error 404: respuesta inválida 😏";
-      question.style.display = "none";
-    }
-  </script>
+  setTimeout(()=>heart.remove(),6000);
+}
+setInterval(createHeart,400);
+
+/* abrir tarjeta */
+function openCard(){
+  document.getElementById("start").style.display="none";
+  document.getElementById("question").style.display="block";
+}
+
+/* respuestas */
+function yes(){
+  document.getElementById("question").style.display="none";
+  document.getElementById("result").innerHTML=`
+    <h1>Sabía que dirías que sí 💘</h1>
+    <p>Gracias por hacer mi vida más bonita todos los días.</p>
+    <img src="foto.jpeg" alt="Nosotros">
+  `;
+}
+
+function no(){
+  document.getElementById("result").innerHTML=
+  "<h1>Error 404: respuesta inválida 😏</h1>";
+}
+</script>
+
 </body>
 </html>
+
